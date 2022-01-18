@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tree</title>
+    <link rel="stylesheet" href="./tree.css" />
+  </head>
+  <body>
+    <aside class="tree-container"></aside>
+    <script src="./tree.js"></script>
+    <script>
+      new Tree(".tree-container", {
+        data: [
+          {
+            id: "root",
+            label: "一级-1",
+            value: "一级-1",
+            checked: false,
+            expand: false,
+            pid: "",
+            fullPath: "",
+            children: [
+              {
+                id: "level-2-1",
+                label: "2级-1",
+                value: "2级-1",
+                checked: false,
+                expand: false,
+                pid: "",
+                fullPath: "",
+                children: [],
+              },
+              {
+                id: "level-2-2",
+                label: "2级-2",
+                value: "2级-2",
+                checked: false,
+                expand: false,
+                pid: "",
+                fullPath: "",
+                children: [
+                  {
+                    id: "level-3-1",
+                    label: "3级-1",
+                    value: "3级-1",
+                    checked: false,
+                    expand: false,
+                    pid: "",
+                    fullPath: "",
+                    children: [],
+                  },
+                  {
+                    id: "level-3-2",
+                    label: "3级-2",
+                    value: "3级-2",
+                    checked: false,
+                    expand: false,
+                    pid: "",
+                    fullPath: "",
+                    children: [],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            id: "root-1",
+            label: "root一级-1",
+            value: "root一级-1",
+            checked: false,
+            expand: false,
+            pid: "",
+            fullPath: "",
+            children: [
+              {
+                id: "root-level-2-1",
+                label: "root2级-1",
+                value: "root2级-1",
+                checked: false,
+                expand: false,
+                pid: "",
+                fullPath: "",
+                children: [],
+              },
+              {
+                id: "root-level-2-2",
+                label: "root2级-2",
+                value: "root2级-2",
+                checked: false,
+                expand: false,
+                pid: "",
+                fullPath: "",
+                children: [
+                  {
+                    id: "level-3-1",
+                    label: "3级-1",
+                    value: "3级-1",
+                    checked: false,
+                    expand: false,
+                    pid: "",
+                    fullPath: "",
+                    children: [
+                      {
+                        id: "level-4-1",
+                        label: "4级-1",
+                        value: "4级-1",
+                        checked: false,
+                        expand: false,
+                        pid: "",
+                        fullPath: "",
+                      },
+                    ],
+                  },
+                  {
+                    id: "level-3-2",
+                    label: "3级-2",
+                    value: "3级-2",
+                    checked: false,
+                    expand: false,
+                    pid: "",
+                    fullPath: "",
+                    children: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    </script>
+  </body>
+</html>
