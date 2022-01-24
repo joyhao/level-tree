@@ -2,7 +2,9 @@ class Tree {
   #selector = null;
   #params = null;
   #root = null;
-  data = [];
+  data = {};
+  ids = [];
+  nodes = {};
   #level = 0; // 总层级
   constructor(selector, params) {
     this.#selector = selector;
@@ -30,11 +32,14 @@ class Tree {
       item.$fullPath = ""; // 初始化$fullPath
       item.$level = level; // 当前层级
       item.$index = index; // 当前层级的第几个元素
+      item.$half = false; // 是否是半选
       item.$fullPath += `${path}[${index}]`;
       // --- end
       const child = item?.children;
       if (child?.length > 0) {
         html = this.#transform(child, level + 1, `${item.$fullPath}.children`);
+      } else {
+        html = "";
       }
 
       tml += this.#tml(item, html);
@@ -59,11 +64,11 @@ class Tree {
     return this.#selector;
   }
   #tml(item, html) {
-    return `<ul class="nodes level-${item.$level}" id="nodes${item.$fullPath}">
+    return `<ul class="nodes level-${item.$level} ${this.#initNear(item)}">
     <li class="node">
-      <div class="content">
-        <button event="expand"   id="expand-${item.id}"  data-full-path="${item.$fullPath}" data-index="${item.$index}"  class="expand"   toggle="${item.expand}" ></button>
-        <button event="checkbox" id="checkbox-${item.id}" class="checkbox" toggle="${item.checked}"></button>
+      <div class="content" ${this.#initContent(item)}>
+        ${this.#initExpand(item)}
+        ${this.#initCheckBox(item)}
         <label  for="checkbox-${item.id}"> ${item.label} </label>
       </div>
 
@@ -71,6 +76,50 @@ class Tree {
 
     </li>
   </ul>`;
+  }
+
+  // 是否渲染嵌套勾选
+  #initNear(item) {
+    if (item.$level === 1) {
+      return `${this.#params.near ? "near" : ""}`;
+    }
+    return "";
+  }
+
+  // 初始化渲染设置属性
+  #initContent(item, attr = "") {
+    if (this.#params.expand >= item.$level) {
+      item["expand"] = true;
+    }
+    Object.keys(item).forEach((k) => {
+      if (typeof item[k] === "boolean" && item[k]) {
+        attr += `${k} `;
+      }
+    });
+    return attr;
+  }
+  // 初始化渲染展开按钮
+  #initExpand(item) {
+    return `<button 
+      event="expand"   
+      class="expand" 
+      id="expand-${item.id}"  
+      data-full-path="${item.$fullPath}" 
+      ${item.children?.length ? "data-has-node" : ""}
+    >
+    </button>`;
+  }
+  // 初始化渲染勾选按钮
+  #initCheckBox(item) {
+    return `<button 
+        event="checked"
+        class="checkbox" 
+        id="checkbox-${item.id}"
+        data-full-path="${item.$fullPath}" 
+        ${item.children?.length ? "data-has-node" : ""}
+      >
+      </button>
+    `;
   }
 
   //--- 事件
@@ -82,9 +131,10 @@ class Tree {
         const eventId = target.getAttribute("event");
         switch (eventId) {
           case "expand":
-            this.#expand(target);
+            this.#expand(target, eventId);
             break;
-          case "checkbox":
+          case "checked":
+            this.#checked(target, eventId);
             break;
           default:
             break;
@@ -94,10 +144,77 @@ class Tree {
     );
   }
 
-  #expand(target) {
+  #expand(target, eventId) {
+    const parent = target.parentNode;
     const fullPath = target.dataset["fullPath"];
     const fn = new Function(`return this.data${fullPath}`).bind(this)(); // 代替eval
-    fn.expand = !fn.expand;
-    console.log(fn);
+    fn[eventId] = !fn[eventId];
+
+    if (fn[eventId]) {
+      parent.setAttribute(eventId, "");
+    } else {
+      parent.removeAttribute(eventId);
+    }
+    return {
+      target,
+      parent,
+      fullPath,
+      fn,
+      val: fn[eventId],
+    };
+  }
+  #checked(target, eventId) {
+    const { parent, fullPath, fn, val } = this.#expand(target, eventId);
+    this.#filter(fn);
+    return;
+    // 勾选嵌套问题
+    if (this.#params.near) {
+      return;
+    }
+    const p = parent.parentNode;
+    const child = fn.children;
+    if (child.length <= 0) {
+      return;
+      //  fn.$half = true;
+      // p.setAttribute("half", "");
+    } else {
+      // fn.$half = false;
+      // p.removeAttribute("half");
+    }
+    // 修改数据的状态
+    // fn.children = child.map((item) => {
+    //   item.checked = val;
+    //   return item;
+    // });
+    // console.log(fn);
+    // 修改dom 状态
+    // if (val) {
+    //   p.setAttribute(eventId, "");
+    // } else {
+    //   p.removeAttribute(eventId);
+    // }
+    // const cb = Array.from(parent.parentNode.querySelectorAll("ul .checkbox"));
+    // cb.forEach((ele) => {
+    //   if (val) {
+    //     ele.setAttribute(eventId, "");
+    //   } else {
+    //     ele.removeAttribute(eventId);
+    //   }
+    // });
+  }
+  // 获取勾选的阶段
+  #filter(item) {
+    if (item.checked) {
+      this.nodes[item.id] = item;
+    } else {
+      delete this.nodes[item.id];
+    }
+  }
+  // 暴露外面使用
+  getNodes() {
+    return {
+      nodes: this.nodes,
+      ids: Object.keys(this.nodes).filter((k) => this.nodes[k].id),
+    };
   }
 }
